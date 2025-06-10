@@ -52,6 +52,16 @@ populacao_estado = {
     "TO": 1_511_460
 }
 
+estado_para_regiao = {
+    'AC': 'Norte', 'AL': 'Nordeste', 'AP': 'Norte', 'AM': 'Norte',
+    'BA': 'Nordeste', 'CE': 'Nordeste', 'DF': 'Centro-Oeste', 'ES': 'Sudeste',
+    'GO': 'Centro-Oeste', 'MA': 'Nordeste', 'MT': 'Centro-Oeste', 'MS': 'Centro-Oeste',
+    'MG': 'Sudeste', 'PA': 'Norte', 'PB': 'Nordeste', 'PR': 'Sul',
+    'PE': 'Nordeste', 'PI': 'Nordeste', 'RJ': 'Sudeste', 'RN': 'Nordeste',
+    'RS': 'Sul', 'RO': 'Norte', 'RR': 'Norte', 'SC': 'Sul',
+    'SP': 'Sudeste', 'SE': 'Nordeste', 'TO': 'Norte'
+}
+
 pop_df = pd.DataFrame(list(populacao_estado.items()), columns=["estado", "populacao"])
 
 # Navegação
@@ -109,13 +119,15 @@ if aba == "Mapa Interativo":
 elif aba == "Análise de Dados":
     st.title("Análise Exploratória dos Pontos de Coleta")
 
-    col1, col2 = st.columns(2)
+    col1, col2, col3= st.columns(3)
     with col1:
         st.metric("Total de Pontos de Coleta", len(df))
         st.metric("Total de Cidades", df['cidade_consulta'].nunique())
     with col2:
         st.metric("Estados Representados", df['estado'].nunique())
         st.metric("Canais Únicos", df['canal'].nunique())
+    with col3:
+        st.metric("Total de Regiões", value = 5)
 
     st.subheader("Distribuição por Canal")
     canal_counts = df["canal"].value_counts().reset_index()
@@ -136,6 +148,13 @@ elif aba == "Análise de Dados":
     st.plotly_chart(fig_porte)
 
     st.dataframe(df[["nome", "endereco", "canal", "cidade_consulta", "cep_consulta"]].reset_index(drop=True))
+
+    st.subheader("Distribuição por Região")
+    df['Região'] = df['estado'].map(estado_para_regiao)
+    count_regiao = df['Região'].value_counts().reset_index()
+    count_regiao.columns = ["Região", "Quantidade"]
+    fig_regiao = px.pie(count_regiao, names="Região", values="Quantidade", title="Distribuição por Região")
+    st.plotly_chart(fig_regiao)
     st.markdown("---")
     st.markdown(
         "📌 **Fonte dos dados:** [ABREE - Associação Brasileira de Reciclagem de Eletroeletrônicos e Eletrodomésticos](https://abree.org.br)"
@@ -169,3 +188,5 @@ elif aba == "Cobertura por População":
     st.markdown(
         "📌 **Fonte dos dados:** [ABREE - Associação Brasileira de Reciclagem de Eletroeletrônicos e Eletrodomésticos](https://abree.org.br)"
     )
+
+
